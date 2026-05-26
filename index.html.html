@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Entrada de Estoque</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f3;color:#1a1a1a;min-height:100vh}
+.header{background:#1a1a1a;color:#fff;padding:14px 20px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:50}
+.header h1{font-size:16px;font-weight:500}
+.tabs{display:flex;background:#fff;border-bottom:1px solid #e5e5e3;position:sticky;top:49px;z-index:40}
+.tab{flex:1;padding:12px 8px;font-size:13px;border:none;background:none;cursor:pointer;color:#888;border-bottom:2px solid transparent;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:5px}
+.tab.active{color:#1a1a1a;border-bottom-color:#1a1a1a;font-weight:500}
+.panel{display:none;padding:16px;max-width:600px;margin:0 auto}
+.panel.active{display:block}
+.card{background:#fff;border:1px solid #e5e5e3;border-radius:12px;padding:16px;margin-bottom:12px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fg{display:flex;flex-direction:column;gap:4px}
+label{font-size:11px;color:#666;font-weight:500;text-transform:uppercase;letter-spacing:.04em}
+input,select{font-size:14px;border:1px solid #e5e5e3;border-radius:8px;padding:9px 12px;width:100%;font-family:inherit;background:#fff;color:#1a1a1a;outline:none}
+input:focus,select:focus{border-color:#1a1a1a}
+.btn-row{display:flex;gap:8px;margin-top:12px}
+.btn-p{background:#1a1a1a;color:#fff;border:none;border-radius:8px;padding:11px 20px;font-size:14px;font-weight:500;cursor:pointer;flex:1;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px}
+.btn-p:disabled{opacity:.5}
+.btn-s{background:#fff;color:#1a1a1a;border:1px solid #ddd;border-radius:8px;padding:11px 14px;font-size:14px;cursor:pointer;font-family:inherit}
+.btn-scan{background:#2b6cb0;color:#fff;border:none;border-radius:8px;padding:9px 14px;font-size:13px;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:5px;white-space:nowrap}
+.upload-zone{border:1.5px dashed #ccc;border-radius:8px;padding:14px;text-align:center;cursor:pointer;position:relative;background:#fff}
+.upload-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.upload-lbl{font-size:13px;color:#888}
+.upload-lbl i{font-size:22px;display:block;margin-bottom:3px;color:#bbb}
+.foto-preview{width:100%;max-height:160px;object-fit:contain;border-radius:8px;border:1px solid #e5e5e3;margin-top:8px;display:none}
+.alert{border-radius:8px;padding:10px 14px;font-size:13px;margin-bottom:12px;display:none;align-items:center;gap:8px}
+.alert.success{background:#f0faf4;color:#276749;display:flex}
+.alert.error{background:#fff5f5;color:#c53030;display:flex}
+.reg-item{background:#fff;border:1px solid #e5e5e3;border-radius:8px;padding:10px 12px;margin-bottom:8px;display:flex;align-items:center;gap:10px}
+.reg-thumb{width:44px;height:44px;border-radius:8px;object-fit:cover;border:1px solid #e5e5e3;flex-shrink:0}
+.reg-ph{width:44px;height:44px;border-radius:8px;background:#f5f5f3;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#bbb;font-size:18px}
+.reg-info{flex:1;min-width:0}
+.reg-nome{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.reg-meta{font-size:11px;color:#888;margin-top:2px}
+.reg-val{font-size:13px;font-weight:500;text-align:right;white-space:nowrap}
+.reg-val span{display:block;font-size:11px;color:#888;font-weight:400}
+.del-btn{background:none;border:none;cursor:pointer;color:#ccc;padding:4px;font-size:16px}
+.del-btn:hover{color:#e53e3e}
+.empty{text-align:center;padding:2rem;color:#aaa;font-size:13px}
+.empty i{font-size:30px;display:block;margin-bottom:8px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.stat{background:#f5f5f3;border-radius:8px;padding:10px}
+.stat-lbl{font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.04em}
+.stat-val{font-size:18px;font-weight:500;margin-top:2px}
+.ebtn{font-size:13px;padding:9px 14px;border-radius:8px;border:1px solid #ddd;background:#fff;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:5px}
+.ebtn.destaque{background:#276749;color:#fff;border-color:#276749;font-weight:500}
+.section-lbl{font-size:11px;color:#888;font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
+.scan-area{display:none;margin-top:8px}
+.scan-area video{width:100%;border-radius:8px;border:1px solid #e5e5e3;background:#000}
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid #fff;border-top-color:transparent;border-radius:50%;animation:spin .6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.cod-row{display:flex;gap:6px;align-items:flex-end}
+.cod-row .fg{flex:1}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <i class="ti ti-package-import" style="font-size:20px"></i>
+  <h1>Entrada de Estoque</h1>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="trocarTab('novo',this)"><i class="ti ti-plus"></i>Novo</button>
+  <button class="tab" onclick="trocarTab('lista',this)"><i class="ti ti-list"></i>Registros</button>
+  <button class="tab" onclick="trocarTab('exportar',this)"><i class="ti ti-file-spreadsheet"></i>Exportar Nex</button>
+</div>
+
+<!-- NOVO -->
+<div class="panel active" id="panel-novo">
+  <div class="alert success" id="ok"><i class="ti ti-check"></i> Produto registrado!</div>
+  <div class="alert error" id="err"><i class="ti ti-alert-circle"></i> <span id="errMsg">Erro.</span></div>
+
+  <div class="card">
+    <!-- Foto do produto -->
+    <div class="section-lbl">📸 Foto do produto</div>
+    <div class="upload-zone">
+      <input type="file" id="i-foto" accept="image/*" capture="environment" onchange="carregarFoto(this)">
+      <div class="upload-lbl" id="foto-lbl"><i class="ti ti-camera-plus"></i>Tirar foto do produto</div>
+    </div>
+    <img id="foto-preview" class="foto-preview" alt="produto">
+
+    <div style="height:12px"></div>
+
+    <!-- Código de barras -->
+    <div class="section-lbl">🔲 Código de barras</div>
+    <div class="cod-row">
+      <div class="fg">
+        <input type="text" id="i-cod" placeholder="Digite ou escaneie..." inputmode="numeric">
+      </div>
+      <button class="btn-scan" onclick="toggleScan()"><i class="ti ti-scan"></i>Câmera</button>
+    </div>
+    <div class="scan-area" id="scanArea">
+      <video id="scanVideo" autoplay playsinline muted></video>
+      <div style="font-size:12px;color:#888;text-align:center;margin-top:4px">Aponte para o código de barras</div>
+      <button onclick="pararScan()" style="width:100%;margin-top:6px;padding:8px;border:1px solid #ddd;border-radius:8px;background:#fff;cursor:pointer;font-family:inherit;font-size:13px">Fechar câmera</button>
+    </div>
+
+    <div style="height:12px"></div>
+
+    <!-- Dados do produto -->
+    <div class="section-lbl">📦 Dados do produto</div>
+    <div class="grid2">
+      <div class="fg full" style="grid-column:1/-1"><label>Nome do produto</label>
+        <input type="text" id="i-nome" placeholder="Ex: ARROZ BRANCO URBANO 1KG" oninput="this.value=this.value.toUpperCase()">
+      </div>
+      <div class="fg">
+        <label>Preço de venda (R$)</label>
+        <input type="text" id="i-preco" placeholder="0,00" inputmode="decimal">
+      </div>
+      <div class="fg">
+        <label>Custo unitário (R$)</label>
+        <input type="text" id="i-custo" placeholder="0,00" inputmode="decimal">
+      </div>
+      <div class="fg">
+        <label>Quantidade entrada</label>
+        <input type="number" id="i-qtd" placeholder="0" min="0" step="1">
+      </div>
+      <div class="fg">
+        <label>Categoria</label>
+        <select id="i-cat">
+          <option value="">Selecione...</option>
+          <option>ACESSÓRIOS</option><option>BEBIDAS</option><option>CIGARROS</option>
+          <option>CONGELADOS</option><option>DOCES</option><option>FRIOS</option>
+          <option>HIGIENE</option><option>LIMPEZA</option><option>MERCEARIA</option>
+          <option>SORVETES</option><option>OUTRO</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label>Fornecedor</label>
+        <input type="text" id="i-forn" placeholder="Nome do fornecedor" oninput="this.value=this.value.toUpperCase()">
+      </div>
+      <div class="fg">
+        <label>Estoque mínimo</label>
+        <input type="number" id="i-min" placeholder="0" min="0" step="1" value="0">
+      </div>
+      <div class="fg">
+        <label>Estoque máximo</label>
+        <input type="number" id="i-max" placeholder="0" min="0" step="1" value="0">
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-s" onclick="limpar()">Limpar</button>
+      <button class="btn-p" id="btnSalvar" onclick="salvar()"><i class="ti ti-device-floppy"></i>Salvar produto</button>
+    </div>
+  </div>
+</div>
+
+<!-- LISTA -->
+<div class="panel" id="panel-lista">
+  <div class="stats" id="statsRow" style="display:none">
+    <div class="stat"><div class="stat-lbl">Produtos</div><div class="stat-val" id="s-qtd">0</div></div>
+    <div class="stat"><div class="stat-lbl">Total em estoque</div><div class="stat-val" id="s-tot">0</div></div>
+    <div class="stat"><div class="stat-lbl">Valor em custo</div><div class="stat-val" id="s-val">R$0</div></div>
+  </div>
+  <div id="lista"><div class="empty"><i class="ti ti-package"></i>Nenhum produto ainda.</div></div>
+</div>
+
+<!-- EXPORTAR -->
+<div class="panel" id="panel-exportar">
+  <div class="card">
+    <div style="font-size:14px;font-weight:500;margin-bottom:8px"><i class="ti ti-brand-google-drive" style="vertical-align:-2px;margin-right:5px"></i>Exportar para o Nex</div>
+    <p style="font-size:13px;color:#666;margin-bottom:14px">Gera uma planilha no formato exato do Nex para importação direta.</p>
+    <div style="background:#f9f9f7;border-radius:8px;padding:10px 12px;font-size:12px;color:#888;margin-bottom:14px;line-height:1.8">
+      <strong style="color:#555">Como importar no Nex:</strong><br>
+      1. Exporte a planilha aqui<br>
+      2. Abra o Nex → Produtos → Importar<br>
+      3. Selecione a planilha gerada<br>
+      4. Confirme a importação
+    </div>
+    <button class="ebtn destaque" onclick="exportarNex()" style="width:100%;justify-content:center">
+      <i class="ti ti-file-spreadsheet"></i>Gerar planilha para o Nex
+    </button>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script>
+let produtos = JSON.parse(localStorage.getItem('estoque_produtos') || '[]');
+let fotoAtual = null;
+let scanStream = null;
+let scanInterval = null;
+
+// Máscara valor
+['i-preco','i-custo'].forEach(id => {
+  document.getElementById(id).addEventListener('input', function() {
+    let v = this.value.replace(/\D/g,'');
+    if (!v) { this.value=''; return; }
+    this.value = (parseInt(v)/100).toFixed(2).replace('.',',');
+  });
+});
+
+function trocarTab(id, btn) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+  if (id === 'lista') renderLista();
+}
+
+function carregarFoto(input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    fotoAtual = e.target.result;
+    const prev = document.getElementById('foto-preview');
+    prev.src = e.target.result;
+    prev.style.display = 'block';
+    document.getElementById('foto-lbl').innerHTML = '<i class="ti ti-check" style="color:#276749"></i> Foto adicionada';
+  };
+  reader.readAsDataURL(file);
+}
+
+// Scanner de código de barras via câmera
+async function toggleScan() {
+  const area = document.getElementById('scanArea');
+  if (area.style.display === 'block') { pararScan(); return; }
+  try {
+    scanStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'environment', width: { ideal: 1280 } }
+    });
+    document.getElementById('scanVideo').srcObject = scanStream;
+    area.style.display = 'block';
+    iniciarDeteccaoBarcode();
+  } catch(e) {
+    alert('Não foi possível acessar a câmera: ' + e.message);
+  }
+}
+
+function iniciarDeteccaoBarcode() {
+  if (!('BarcodeDetector' in window)) {
+    alert('Seu navegador não suporta leitura de código de barras automática.\nDigite o código manualmente.');
+    pararScan();
+    return;
+  }
+  const detector = new BarcodeDetector({ formats: ['ean_13','ean_8','code_128','code_39','upc_a','upc_e'] });
+  const video = document.getElementById('scanVideo');
+  scanInterval = setInterval(async () => {
+    try {
+      const barcodes = await detector.detect(video);
+      if (barcodes.length > 0) {
+        document.getElementById('i-cod').value = barcodes[0].rawValue;
+        pararScan();
+        document.getElementById('i-nome').focus();
+      }
+    } catch(e) {}
+  }, 300);
+}
+
+function pararScan() {
+  if (scanInterval) { clearInterval(scanInterval); scanInterval = null; }
+  if (scanStream) { scanStream.getTracks().forEach(t => t.stop()); scanStream = null; }
+  document.getElementById('scanArea').style.display = 'none';
+  document.getElementById('scanVideo').srcObject = null;
+}
+
+function parseValor(v) {
+  return parseFloat(String(v||'0').replace(/\./g,'').replace(',','.')) || 0;
+}
+
+function salvar() {
+  const nome = document.getElementById('i-nome').value.trim();
+  const cod = document.getElementById('i-cod').value.trim();
+  const preco = parseValor(document.getElementById('i-preco').value);
+  const qtd = parseInt(document.getElementById('i-qtd').value) || 0;
+
+  if (!nome) { mostrarErro('Preencha o nome do produto.'); return; }
+  if (!cod) { mostrarErro('Preencha o código de barras.'); return; }
+  if (preco <= 0) { mostrarErro('Preencha o preço de venda.'); return; }
+  if (qtd <= 0) { mostrarErro('Preencha a quantidade de entrada.'); return; }
+
+  const produto = {
+    id: Date.now(),
+    nome,
+    codigo: cod,
+    preco,
+    custo: parseValor(document.getElementById('i-custo').value),
+    quantidade: qtd,
+    categoria: document.getElementById('i-cat').value,
+    fornecedor: document.getElementById('i-forn').value.trim(),
+    estoqueMin: parseInt(document.getElementById('i-min').value) || 0,
+    estoqueMax: parseInt(document.getElementById('i-max').value) || 0,
+    foto: fotoAtual,
+    data: new Date().toISOString()
+  };
+
+  produtos.push(produto);
+  localStorage.setItem('estoque_produtos', JSON.stringify(produtos));
+
+  document.getElementById('ok').style.display = 'flex';
+  setTimeout(() => document.getElementById('ok').style.display = 'none', 3000);
+  limpar();
+}
+
+function mostrarErro(msg) {
+  document.getElementById('errMsg').textContent = msg;
+  document.getElementById('err').style.display = 'flex';
+  setTimeout(() => document.getElementById('err').style.display = 'none', 3000);
+}
+
+function limpar() {
+  ['i-nome','i-cod','i-forn'].forEach(id => document.getElementById(id).value = '');
+  ['i-preco','i-custo'].forEach(id => document.getElementById(id).value = '');
+  ['i-qtd','i-min','i-max'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('i-cat').value = '';
+  document.getElementById('i-foto').value = '';
+  fotoAtual = null;
+  document.getElementById('foto-preview').style.display = 'none';
+  document.getElementById('foto-lbl').innerHTML = '<i class="ti ti-camera-plus"></i>Tirar foto do produto';
+  pararScan();
+}
+
+function renderLista() {
+  const lista = document.getElementById('lista');
+  const sr = document.getElementById('statsRow');
+  if (!produtos.length) {
+    lista.innerHTML = '<div class="empty"><i class="ti ti-package"></i>Nenhum produto ainda.</div>';
+    sr.style.display = 'none'; return;
+  }
+  sr.style.display = 'grid';
+  const totalQtd = produtos.reduce((s,p)=>s+(p.quantidade||0),0);
+  const totalVal = produtos.reduce((s,p)=>s+(p.custo||0)*(p.quantidade||0),0);
+  document.getElementById('s-qtd').textContent = produtos.length;
+  document.getElementById('s-tot').textContent = totalQtd + ' un';
+  document.getElementById('s-val').textContent = 'R$'+totalVal.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+
+  lista.innerHTML = [...produtos].reverse().map(p => {
+    const thumb = p.foto
+      ? `<img src="${p.foto}" class="reg-thumb" alt="${p.nome}">`
+      : `<div class="reg-ph"><i class="ti ti-package"></i></div>`;
+    const preco = 'R$'+p.preco.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+    const custo = p.custo?'Custo: R$'+p.custo.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}):'';
+    const dt = new Date(p.data).toLocaleDateString('pt-BR');
+    return `<div class="reg-item">${thumb}
+      <div class="reg-info">
+        <div class="reg-nome">${p.nome}</div>
+        <div class="reg-meta">${p.codigo} · ${p.categoria||''} · ${dt}</div>
+        <div class="reg-meta">${p.fornecedor||''}</div>
+      </div>
+      <div>
+        <div class="reg-val">${preco}<span>${custo}</span><span>${p.quantidade} un</span></div>
+      </div>
+      <button class="del-btn" onclick="deletar(${p.id})"><i class="ti ti-trash"></i></button>
+    </div>`;
+  }).join('');
+}
+
+function deletar(id) {
+  if (!confirm('Excluir este produto?')) return;
+  produtos = produtos.filter(p => p.id !== id);
+  localStorage.setItem('estoque_produtos', JSON.stringify(produtos));
+  renderLista();
+}
+
+function exportarNex() {
+  if (!produtos.length) { alert('Nenhum produto para exportar.'); return; }
+
+  // Formato EXATO do Nex
+  const rows = [['Ação','Imagem','Nome','Código','Preço','Estoque Atual','Pedidos','Disponível','Código Extra','Categoria','Sub Categoria','Unidade','Fornecedor Principal','Código Ref.','Marca','Estoque Min.','Estoque Max.','Abaixo Min.','Repor','Prêmio ?','Pontos Nec.','Tributação','NCM','CEST','Peso Líq.','Peso Bruto','Incluído em','Alterado em','Alterado por']];
+
+  produtos.forEach(p => {
+    const preco = 'R$ ' + p.preco.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}) + ' ';
+    const dt = new Date(p.data).toLocaleString('pt-BR');
+    rows.push([
+      '',          // Ação
+      '',          // Imagem
+      p.nome,      // Nome
+      p.codigo,    // Código
+      preco,       // Preço
+      p.quantidade,// Estoque Atual
+      0,           // Pedidos
+      p.quantidade,// Disponível
+      '',          // Código Extra
+      p.categoria, // Categoria
+      '',          // Sub Categoria
+      'Peça',      // Unidade
+      p.fornecedor,// Fornecedor Principal
+      p.codigo,    // Código Ref.
+      '',          // Marca
+      p.estoqueMin,// Estoque Min.
+      p.estoqueMax,// Estoque Max.
+      'Não',       // Abaixo Min.
+      '',          // Repor
+      'Não',       // Prêmio?
+      0,           // Pontos Nec.
+      '',          // Tributação
+      '',          // NCM
+      '',          // CEST
+      '',          // Peso Líq.
+      '',          // Peso Bruto
+      dt,          // Incluído em
+      '',          // Alterado em
+      ''           // Alterado por
+    ]);
+  });
+
+  const ws = XLSX.utils.aoa_to_sheet(rows);
+  ws['!cols'] = [
+    {wch:8},{wch:8},{wch:40},{wch:15},{wch:12},{wch:14},{wch:8},{wch:12},
+    {wch:12},{wch:15},{wch:12},{wch:8},{wch:25},{wch:12},{wch:12},{wch:12},
+    {wch:12},{wch:12},{wch:8},{wch:8},{wch:10},{wch:20},{wch:12},{wch:8},
+    {wch:10},{wch:10},{wch:20},{wch:20},{wch:15}
+  ];
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Produtos');
+  const data = new Date().toLocaleDateString('pt-BR').replace(/\//g,'-');
+  XLSX.writeFile(wb, `Entrada_Estoque_${data}.xlsx`);
+}
+</script>
+</body>
+</html>
