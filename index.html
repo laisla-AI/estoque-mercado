@@ -3,13 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Entrada de Estoque</title>
+<title>Contabilidade — Mercado</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f3;color:#1a1a1a;min-height:100vh}
 .header{background:#1a1a1a;color:#fff;padding:14px 20px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:50}
 .header h1{font-size:16px;font-weight:500}
+.badge-plano{font-size:11px;background:#2a2a2a;border:1px solid #3a3a3a;border-radius:99px;padding:3px 10px;color:#aaa;margin-left:auto}
+.dot{width:8px;height:8px;border-radius:50%;margin-left:8px;flex-shrink:0}
+.dot-on{background:#48bb78}.dot-off{background:#fc8181}
 .tabs{display:flex;background:#fff;border-bottom:1px solid #e5e5e3;position:sticky;top:49px;z-index:40}
 .tab{flex:1;padding:12px 8px;font-size:13px;border:none;background:none;cursor:pointer;color:#888;border-bottom:2px solid transparent;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:5px}
 .tab.active{color:#1a1a1a;border-bottom-color:#1a1a1a;font-weight:500}
@@ -17,405 +20,746 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .panel.active{display:block}
 .card{background:#fff;border:1px solid #e5e5e3;border-radius:12px;padding:16px;margin-bottom:12px}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.full{grid-column:1/-1}
 .fg{display:flex;flex-direction:column;gap:4px}
 label{font-size:11px;color:#666;font-weight:500;text-transform:uppercase;letter-spacing:.04em}
-input,select{font-size:14px;border:1px solid #e5e5e3;border-radius:8px;padding:9px 12px;width:100%;font-family:inherit;background:#fff;color:#1a1a1a;outline:none}
-input:focus,select:focus{border-color:#1a1a1a}
+input,select,textarea{font-size:14px;border:1px solid #e5e5e3;border-radius:8px;padding:9px 12px;width:100%;font-family:inherit;background:#fff;color:#1a1a1a;outline:none}
+input:focus,select:focus,textarea:focus{border-color:#1a1a1a}
+textarea{resize:vertical;min-height:52px}
+.pasta-sel{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:4px}
+.pasta-btn{font-size:12px;padding:6px 12px;border-radius:8px;border:1px solid #ddd;background:#fff;cursor:pointer;color:#555;font-family:inherit;display:flex;align-items:center;gap:5px;transition:all .15s}
+.pasta-btn.active{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
+.upload-zone{border:1.5px dashed #ccc;border-radius:8px;padding:16px;text-align:center;cursor:pointer;position:relative;transition:background .15s;background:#fff}
+.upload-zone:hover{background:#f9f9f7}
+.upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.ulbl{font-size:13px;color:#888}
+.ulbl i{font-size:22px;display:block;margin-bottom:3px;color:#bbb}
+.cvs-wrap{margin-top:8px;display:none}
+.cvs-wrap canvas{width:100%;border-radius:8px;border:1px solid #e5e5e3}
+.scan-btns{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
+.sbtn{font-size:11px;padding:5px 10px;border-radius:8px;border:1px solid #ddd;background:#fff;cursor:pointer;color:#333;display:flex;align-items:center;gap:3px;font-family:inherit}
+.sbtn.active{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
+.btn-ia{width:100%;margin-top:8px;padding:10px;border-radius:8px;border:1.5px solid #6c47ff;background:#f5f0ff;color:#6c47ff;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px}
+.btn-ia:hover{background:#ede9ff}
+.btn-ia:disabled{opacity:.5;cursor:not-allowed}
+.ia-status{display:flex;align-items:center;gap:8px;font-size:12px;color:#6c47ff;margin-top:6px;padding:8px 10px;background:#f5f0ff;border-radius:8px}
+.ia-sugestao{background:#f5f0ff;border:1px solid #d6bcfa;border-radius:8px;padding:10px 12px;margin-top:8px;font-size:12px;color:#553c9a}
+.pix-wrap{margin-top:10px;display:none}
+.pix-preview{width:100%;max-height:150px;object-fit:contain;border-radius:8px;border:1px solid #e5e5e3;margin-top:6px;display:none}
 .btn-row{display:flex;gap:8px;margin-top:12px}
 .btn-p{background:#1a1a1a;color:#fff;border:none;border-radius:8px;padding:11px 20px;font-size:14px;font-weight:500;cursor:pointer;flex:1;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px}
-.btn-p:disabled{opacity:.5}
+.btn-p:disabled{opacity:.5;cursor:not-allowed}
 .btn-s{background:#fff;color:#1a1a1a;border:1px solid #ddd;border-radius:8px;padding:11px 14px;font-size:14px;cursor:pointer;font-family:inherit}
-.btn-scan{background:#2b6cb0;color:#fff;border:none;border-radius:8px;padding:9px 14px;font-size:13px;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:5px;white-space:nowrap}
-.upload-zone{border:1.5px dashed #ccc;border-radius:8px;padding:14px;text-align:center;cursor:pointer;position:relative;background:#fff}
-.upload-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
-.upload-lbl{font-size:13px;color:#888}
-.upload-lbl i{font-size:22px;display:block;margin-bottom:3px;color:#bbb}
-.foto-preview{width:100%;max-height:160px;object-fit:contain;border-radius:8px;border:1px solid #e5e5e3;margin-top:8px;display:none}
-.alert{border-radius:8px;padding:10px 14px;font-size:13px;margin-bottom:12px;display:none;align-items:center;gap:8px}
-.alert.success{background:#f0faf4;color:#276749;display:flex}
-.alert.error{background:#fff5f5;color:#c53030;display:flex}
+.resumo{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.rcard{background:#f5f5f3;border-radius:8px;padding:10px 12px}
+.rlbl{font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.04em}
+.rval{font-size:18px;font-weight:500;color:#1a1a1a;margin-top:2px}
 .reg-item{background:#fff;border:1px solid #e5e5e3;border-radius:8px;padding:10px 12px;margin-bottom:8px;display:flex;align-items:center;gap:10px}
-.reg-thumb{width:44px;height:44px;border-radius:8px;object-fit:cover;border:1px solid #e5e5e3;flex-shrink:0}
+.reg-thumb{width:44px;height:44px;border-radius:8px;object-fit:cover;border:1px solid #e5e5e3;flex-shrink:0;cursor:pointer}
 .reg-ph{width:44px;height:44px;border-radius:8px;background:#f5f5f3;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#bbb;font-size:18px}
 .reg-info{flex:1;min-width:0}
-.reg-nome{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.reg-meta{font-size:11px;color:#888;margin-top:2px}
-.reg-val{font-size:13px;font-weight:500;text-align:right;white-space:nowrap}
-.reg-val span{display:block;font-size:11px;color:#888;font-weight:400}
+.reg-nome{font-size:13px;font-weight:500;color:#1a1a1a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.reg-meta{font-size:11px;color:#888;margin-top:1px}
+.reg-pasta{font-size:10px;color:#aaa;margin-top:1px}
+.reg-val{font-size:14px;font-weight:500;color:#1a1a1a;white-space:nowrap;text-align:right}
+.reg-pgto{font-size:11px;color:#aaa;text-align:right;margin-top:1px}
 .del-btn{background:none;border:none;cursor:pointer;color:#ccc;padding:4px;font-size:16px}
 .del-btn:hover{color:#e53e3e}
-.empty{text-align:center;padding:2rem;color:#aaa;font-size:13px}
-.empty i{font-size:30px;display:block;margin-bottom:8px}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
-.stat{background:#f5f5f3;border-radius:8px;padding:10px}
-.stat-lbl{font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.04em}
-.stat-val{font-size:18px;font-weight:500;margin-top:2px}
-.ebtn{font-size:13px;padding:9px 14px;border-radius:8px;border:1px solid #ddd;background:#fff;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:5px}
-.ebtn.destaque{background:#276749;color:#fff;border-color:#276749;font-weight:500}
-.section-lbl{font-size:11px;color:#888;font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
-.scan-area{display:none;margin-top:8px}
-.scan-area video{width:100%;border-radius:8px;border:1px solid #e5e5e3;background:#000}
-.spinner{display:inline-block;width:14px;height:14px;border:2px solid #fff;border-top-color:transparent;border-radius:50%;animation:spin .6s linear infinite}
+.empty{text-align:center;padding:2.5rem;color:#aaa;font-size:13px}
+.empty i{font-size:32px;display:block;margin-bottom:8px}
+.alert{border-radius:8px;padding:10px 14px;font-size:13px;margin-bottom:12px;display:none;align-items:center;gap:8px}
+.alert.success{background:#f0faf4;color:#276749}
+.alert.error{background:#fff5f5;color:#c53030}
+.sec-hd{font-size:14px;font-weight:500;margin:8px 0;color:#1a1a1a;display:flex;justify-content:space-between;align-items:center}
+.badge{font-size:11px;background:#f5f5f3;border:1px solid #e5e5e3;border-radius:99px;padding:2px 9px;color:#888}
+.periodo-row{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;margin-bottom:12px}
+.periodo-row .fg{flex:1;min-width:110px}
+.exp-row{display:flex;gap:8px;flex-wrap:wrap}
+.ebtn{display:flex;align-items:center;gap:5px;font-size:13px;padding:9px 14px;border-radius:8px;border:1px solid #ddd;background:#fff;cursor:pointer;color:#1a1a1a;font-family:inherit}
+.ebtn.destaque{background:#1a1a1a;color:#fff;border-color:#1a1a1a;font-weight:500}
+.folder-tree{font-size:12px;color:#888;line-height:2;padding:10px 12px;background:#f9f9f7;border-radius:8px;margin-bottom:12px}
+.progress-wrap{display:none;margin-top:12px}
+.progress-bar{height:5px;background:#f0f0ee;border-radius:99px;overflow:hidden;margin-top:6px}
+.progress-fill{height:100%;background:#1a1a1a;border-radius:99px;transition:width .3s}
+.progress-lbl{font-size:12px;color:#888}
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;align-items:center;justify-content:center;padding:20px}
+.modal-box{background:#fff;border-radius:12px;padding:16px;max-width:420px;width:100%;position:relative}
+.modal-box img{width:100%;border-radius:8px;margin-bottom:8px}
+.modal-close{position:absolute;top:10px;right:10px;background:#f5f5f3;border:none;cursor:pointer;font-size:16px;color:#666;border-radius:6px;padding:4px 8px}
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid #fff;border-top-color:transparent;border-radius:50%;animation:spin .6s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-.cod-row{display:flex;gap:6px;align-items:flex-end}
-.cod-row .fg{flex:1}
+.pix-badge{display:inline-block;font-size:10px;background:#ebf8ff;color:#2b6cb0;border:1px solid #bee3f8;border-radius:99px;padding:1px 7px;margin-left:5px;vertical-align:middle}
+.email-badge{display:inline-block;font-size:10px;background:#f0faf4;color:#276749;border:1px solid #9ae6b4;border-radius:99px;padding:1px 7px;margin-left:5px;vertical-align:middle}
+.divider{height:1px;background:#f0f0ee;margin:12px 0}
+.section-lbl{font-size:11px;color:#888;font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
+.filtro-mes{display:flex;gap:6px;margin-bottom:10px}
+.filtro-mes select{flex:1;font-size:13px;border:1px solid #e5e5e3;border-radius:8px;padding:8px 12px;background:#fff;font-family:inherit}
 </style>
 </head>
 <body>
 
 <div class="header">
-  <i class="ti ti-package-import" style="font-size:20px"></i>
-  <h1>Entrada de Estoque</h1>
+  <i class="ti ti-receipt" style="font-size:20px"></i>
+  <h1>Contabilidade — Mercado</h1>
+  <span class="badge-plano">Spark gratuito</span>
+  <div id="statusDot" class="dot dot-off" title="Conectando..."></div>
 </div>
 
 <div class="tabs">
-  <button class="tab active" onclick="trocarTab('novo',this)"><i class="ti ti-plus"></i>Novo</button>
-  <button class="tab" onclick="trocarTab('lista',this)"><i class="ti ti-list"></i>Registros</button>
-  <button class="tab" onclick="trocarTab('exportar',this)"><i class="ti ti-file-spreadsheet"></i>Exportar Nex</button>
+  <button class="tab active" onclick="trocarTab('registro')"><i class="ti ti-plus"></i>Novo</button>
+  <button class="tab" onclick="trocarTab('lista')"><i class="ti ti-list"></i>Registros</button>
+  <button class="tab" onclick="trocarTab('exportar')"><i class="ti ti-download"></i>Exportar</button>
 </div>
 
-<!-- NOVO -->
-<div class="panel active" id="panel-novo">
-  <div class="alert success" id="ok"><i class="ti ti-check"></i> Produto registrado!</div>
+<!-- NOVO REGISTRO -->
+<div class="panel active" id="panel-registro">
+  <div class="alert success" id="ok"><i class="ti ti-check"></i> Salvo na nuvem!</div>
   <div class="alert error" id="err"><i class="ti ti-alert-circle"></i> <span id="errMsg">Erro.</span></div>
-
   <div class="card">
-    <!-- Foto do produto -->
-    <div class="section-lbl">📸 Foto do produto</div>
-    <div class="upload-zone">
-      <input type="file" id="i-foto" accept="image/*" capture="environment" onchange="carregarFoto(this)">
-      <div class="upload-lbl" id="foto-lbl"><i class="ti ti-camera-plus"></i>Tirar foto do produto</div>
+    <div class="fg full" style="margin-bottom:12px">
+      <label>📁 Pasta de destino</label>
+      <div class="pasta-sel">
+        <button class="pasta-btn active" data-pasta="01" onclick="selecionarPasta(this)"><i class="ti ti-receipt-2"></i>01 - FISCAL</button>
+        <button class="pasta-btn" data-pasta="02" onclick="selecionarPasta(this)"><i class="ti ti-building-bank"></i>02 - BANCO</button>
+        <button class="pasta-btn" data-pasta="03" onclick="selecionarPasta(this)"><i class="ti ti-users"></i>03 - FUNCIONÁRIOS</button>
+      </div>
+      <div id="subpastaLabel" style="font-size:11px;color:#aaa;margin-top:3px">📂 01 - FISCAL / Comprovantes de Fornecedores</div>
     </div>
-    <img id="foto-preview" class="foto-preview" alt="produto">
-
-    <div style="height:12px"></div>
-
-    <!-- Código de barras -->
-    <div class="section-lbl">🔲 Código de barras</div>
-    <div class="cod-row">
-      <div class="fg">
-        <input type="text" id="i-cod" placeholder="Digite ou escaneie..." inputmode="numeric">
-      </div>
-      <button class="btn-scan" onclick="toggleScan()"><i class="ti ti-scan"></i>Câmera</button>
-    </div>
-    <div class="scan-area" id="scanArea">
-      <video id="scanVideo" autoplay playsinline muted></video>
-      <div style="font-size:12px;color:#888;text-align:center;margin-top:4px">Aponte para o código de barras</div>
-      <button onclick="pararScan()" style="width:100%;margin-top:6px;padding:8px;border:1px solid #ddd;border-radius:8px;background:#fff;cursor:pointer;font-family:inherit;font-size:13px">Fechar câmera</button>
-    </div>
-
-    <div style="height:12px"></div>
-
-    <!-- Dados do produto -->
-    <div class="section-lbl">📦 Dados do produto</div>
-    <div class="grid2">
-      <div class="fg full" style="grid-column:1/-1"><label>Nome do produto</label>
-        <input type="text" id="i-nome" placeholder="Ex: ARROZ BRANCO URBANO 1KG" oninput="this.value=this.value.toUpperCase()">
-      </div>
-      <div class="fg">
-        <label>Preço de venda (R$)</label>
-        <input type="text" id="i-preco" placeholder="0,00" inputmode="decimal">
-      </div>
-      <div class="fg">
-        <label>Custo unitário (R$)</label>
-        <input type="text" id="i-custo" placeholder="0,00" inputmode="decimal">
-      </div>
-      <div class="fg">
-        <label>Quantidade entrada</label>
-        <input type="number" id="i-qtd" placeholder="0" min="0" step="1">
-      </div>
+    <div class="divider"></div>
+    <div class="grid2" style="margin-top:12px">
+      <div class="fg"><label>Data</label><input type="date" id="i-data"></div>
+      <div class="fg"><label>Valor (R$)</label><input type="text" id="i-valor" placeholder="0,00" inputmode="decimal"></div>
+      <div class="fg full"><label>Fornecedor</label><input type="text" id="i-forn" placeholder="Ex: JM CIGARROS..." oninput="this.value=this.value.toUpperCase()"></div>
       <div class="fg">
         <label>Categoria</label>
         <select id="i-cat">
           <option value="">Selecione...</option>
-          <option>ACESSÓRIOS</option><option>BEBIDAS</option><option>CIGARROS</option>
-          <option>CONGELADOS</option><option>DOCES</option><option>FRIOS</option>
-          <option>HIGIENE</option><option>LIMPEZA</option><option>MERCEARIA</option>
-          <option>SORVETES</option><option>OUTRO</option>
+          <option>Açougue</option><option>Acessórios</option><option>Bebidas</option>
+          <option>Cigarro</option><option>Despesa operacional</option><option>Doces</option>
+          <option>Frios e laticínios</option><option>Hortifruti</option><option>Limpeza</option>
+          <option>Manutenção</option><option>Mercadoria geral</option><option>Mercearia</option>
+          <option>Padaria / pão</option><option>Outro</option>
         </select>
       </div>
       <div class="fg">
-        <label>Fornecedor</label>
-        <input type="text" id="i-forn" placeholder="Nome do fornecedor" oninput="this.value=this.value.toUpperCase()">
+        <label>Pagamento</label>
+        <select id="i-pgto" onchange="togglePix()">
+          <option value="">Selecione...</option>
+          <option>Dinheiro</option><option>PIX</option><option>Cartão</option>
+        </select>
       </div>
-      <div class="fg">
-        <label>Estoque mínimo</label>
-        <input type="number" id="i-min" placeholder="0" min="0" step="1" value="0">
+      <div class="fg full">
+        <div class="section-lbl">🧾 Comprovante de recebimento</div>
+        <div class="upload-zone">
+          <input type="file" id="i-foto" accept="image/*" capture="environment">
+          <div class="ulbl" id="ulbl"><i class="ti ti-camera-plus"></i>Foto do recibo / nota</div>
+        </div>
+        <div class="cvs-wrap" id="cvsWrap">
+          <canvas id="cvs"></canvas>
+          <div class="scan-btns">
+            <button class="sbtn active" onclick="aplicarFiltro('original')"><i class="ti ti-photo"></i>Original</button>
+            <button class="sbtn" onclick="aplicarFiltro('scanner')"><i class="ti ti-scan"></i>Scanner P&B</button>
+            <button class="sbtn" onclick="aplicarFiltro('contraste')"><i class="ti ti-adjustments-contrast"></i>Contraste</button>
+          </div>
+          <button class="btn-ia" id="btnIA" onclick="lerComIA()"><i class="ti ti-sparkles"></i>Preencher com IA</button>
+          <div class="ia-status" id="iaStatus" style="display:none">
+            <div class="spinner" style="border-color:#6c47ff;border-top-color:transparent"></div>
+            <span id="iaStatusTxt">Analisando...</span>
+          </div>
+        </div>
       </div>
-      <div class="fg">
-        <label>Estoque máximo</label>
-        <input type="number" id="i-max" placeholder="0" min="0" step="1" value="0">
+      <div class="fg full pix-wrap" id="pixWrap">
+        <div class="section-lbl">📱 Comprovante PIX <span class="pix-badge">PIX</span></div>
+        <div class="upload-zone" style="border-color:#bee3f8;background:#f7fbff">
+          <input type="file" id="i-pix" accept="image/*" capture="environment">
+          <div class="ulbl" id="ulblPix"><i class="ti ti-brand-whatsapp" style="color:#2b6cb0"></i>Print do PIX</div>
+        </div>
+        <img id="pixPreview" class="pix-preview" alt="pix">
       </div>
+      <div class="fg full"><label>Observação</label><textarea id="i-obs" placeholder="Detalhes..."></textarea></div>
     </div>
-
     <div class="btn-row">
       <button class="btn-s" onclick="limpar()">Limpar</button>
-      <button class="btn-p" id="btnSalvar" onclick="salvar()"><i class="ti ti-device-floppy"></i>Salvar produto</button>
+      <button class="btn-p" id="btnSalvar" onclick="salvar()"><i class="ti ti-device-floppy"></i>Salvar na nuvem</button>
     </div>
   </div>
 </div>
 
-<!-- LISTA -->
+<!-- REGISTROS -->
 <div class="panel" id="panel-lista">
-  <div class="stats" id="statsRow" style="display:none">
-    <div class="stat"><div class="stat-lbl">Produtos</div><div class="stat-val" id="s-qtd">0</div></div>
-    <div class="stat"><div class="stat-lbl">Total em estoque</div><div class="stat-val" id="s-tot">0</div></div>
-    <div class="stat"><div class="stat-lbl">Valor em custo</div><div class="stat-val" id="s-val">R$0</div></div>
+  <div class="alert" id="loadingLista" style="background:#f0f4ff;color:#2b4acb;display:none;align-items:center;gap:8px">
+    <div class="spinner" style="border-color:#2b4acb;border-top-color:transparent"></div> Carregando...
   </div>
-  <div id="lista"><div class="empty"><i class="ti ti-package"></i>Nenhum produto ainda.</div></div>
+  <div class="filtro-mes">
+    <select id="filtroAno" onchange="renderLista()"></select>
+    <select id="filtroMes" onchange="renderLista()">
+      <option value="">Todos os meses</option>
+      <option value="01">Janeiro</option><option value="02">Fevereiro</option>
+      <option value="03">Março</option><option value="04">Abril</option>
+      <option value="05">Maio</option><option value="06">Junho</option>
+      <option value="07">Julho</option><option value="08">Agosto</option>
+      <option value="09">Setembro</option><option value="10">Outubro</option>
+      <option value="11">Novembro</option><option value="12">Dezembro</option>
+    </select>
+  </div>
+  <div id="resumoWrap" style="display:none">
+    <div class="resumo">
+      <div class="rcard"><div class="rlbl">Registros</div><div class="rval" id="r-qtd">0</div></div>
+      <div class="rcard"><div class="rlbl">Total gasto</div><div class="rval" id="r-tot">R$0</div></div>
+      <div class="rcard"><div class="rlbl">Sem comprovante</div><div class="rval" id="r-sem">0</div></div>
+    </div>
+  </div>
+  <div class="sec-hd" id="secHd" style="display:none">
+    Registros <span class="badge" id="badgeN">0</span>
+  </div>
+  <div id="lista"><div class="empty"><i class="ti ti-clipboard-list"></i>Nenhum registro.</div></div>
 </div>
 
 <!-- EXPORTAR -->
 <div class="panel" id="panel-exportar">
   <div class="card">
-    <div style="font-size:14px;font-weight:500;margin-bottom:8px"><i class="ti ti-brand-google-drive" style="vertical-align:-2px;margin-right:5px"></i>Exportar para o Nex</div>
-    <p style="font-size:13px;color:#666;margin-bottom:14px">Gera uma planilha no formato exato do Nex para importação direta.</p>
-    <div style="background:#f9f9f7;border-radius:8px;padding:10px 12px;font-size:12px;color:#888;margin-bottom:14px;line-height:1.8">
-      <strong style="color:#555">Como importar no Nex:</strong><br>
-      1. Exporte a planilha aqui<br>
-      2. Abra o Nex → Produtos → Importar<br>
-      3. Selecione a planilha gerada<br>
-      4. Confirme a importação
+    <div style="font-size:14px;font-weight:500;margin-bottom:10px"><i class="ti ti-calendar-stats" style="vertical-align:-2px;margin-right:5px"></i>Período</div>
+    <div class="periodo-row">
+      <div class="fg"><label>De</label><input type="date" id="p-de"></div>
+      <div class="fg"><label>Até</label><input type="date" id="p-ate"></div>
     </div>
-    <button class="ebtn destaque" onclick="exportarNex()" style="width:100%;justify-content:center">
-      <i class="ti ti-file-spreadsheet"></i>Gerar planilha para o Nex
-    </button>
+    <div class="folder-tree">
+      <div><i class="ti ti-folder" style="color:#E9A23B;vertical-align:-2px;margin-right:4px"></i><strong>CONTABILIDADE / 2026 / 05 - MAIO</strong></div>
+      <div style="padding-left:14px"><i class="ti ti-folder" style="color:#E9A23B;vertical-align:-2px;margin-right:4px"></i>01 - FISCAL / Comprovantes → Imagens + Excel</div>
+      <div style="padding-left:14px"><i class="ti ti-folder" style="color:#E9A23B;vertical-align:-2px;margin-right:4px"></i>02 - BANCO / Comprovantes → vazia</div>
+      <div style="padding-left:14px"><i class="ti ti-folder" style="color:#E9A23B;vertical-align:-2px;margin-right:4px"></i>03 - FUNCIONÁRIOS → vazia</div>
+    </div>
+    <div class="exp-row">
+      <button class="ebtn" onclick="exportExcel()"><i class="ti ti-file-spreadsheet"></i>Excel</button>
+      <button class="ebtn destaque" onclick="gerarZIP()"><i class="ti ti-file-zip"></i>ZIP completo</button>
+    </div>
+    <div class="progress-wrap" id="progWrap">
+      <div class="progress-lbl" id="progLbl">Gerando...</div>
+      <div class="progress-bar"><div class="progress-fill" id="progFill" style="width:0%"></div></div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="modal" onclick="fecharModal()">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="fecharModal()"><i class="ti ti-x"></i></button>
+    <img id="modalImg" src="" alt="comprovante">
+    <div id="modalPix" style="display:none;margin-top:8px">
+      <div style="font-size:11px;color:#2b6cb0;font-weight:500;margin-bottom:4px">Comprovante PIX</div>
+      <img id="modalPixImg" src="" alt="pix" style="width:100%;border-radius:8px">
+    </div>
   </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, orderBy, query } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+const cfg = {
+  apiKey:"AIzaSyCe8afoWcPioKVO3StO9sKnxk7fuiQOVvA",
+  authDomain:"contabilidade-mercado.firebaseapp.com",
+  projectId:"contabilidade-mercado",
+  storageBucket:"contabilidade-mercado.firebasestorage.app",
+  messagingSenderId:"1077955456911",
+  appId:"1:1077955456911:web:304ddcd4696a3f1168e5fa"
+};
+const app = initializeApp(cfg);
+const db = getFirestore(app);
+window._db = db;
+window._col = collection(db,'compras');
+window._addDoc = addDoc;
+window._getDocs = getDocs;
+window._deleteDoc = deleteDoc;
+window._doc = doc;
+window._query = query;
+window._orderBy = orderBy;
+document.getElementById('statusDot').className = 'dot dot-on';
+document.getElementById('statusDot').title = 'Conectado';
+</script>
+
 <script>
-let produtos = JSON.parse(localStorage.getItem('estoque_produtos') || '[]');
-let fotoAtual = null;
-let scanStream = null;
-let scanInterval = null;
+const MESES = ['JANEIRO','FEVEREIRO','MARÇO','ABRIL','MAIO','JUNHO','JULHO','AGOSTO','SETEMBRO','OUTUBRO','NOVEMBRO','DEZEMBRO'];
+const CLOUD = 'dtewhnolw';
+const PRESET = 'comprovantes';
+const WORKER = 'https://ocr-contabilidade.laislagomesds29.workers.dev';
+const PASTAS = {
+  '01':{label:'01 - FISCAL / Comprovantes de Fornecedores',path:'01 - FISCAL (Vendas e Compras)/Comprovantes de Fornecedores'},
+  '02':{label:'02 - BANCO / Comprovantes de Pagamento',path:'02 - BANCO (Extratos e Boletos)/Comprovantes de Pagamento'},
+  '03':{label:'03 - FUNCIONÁRIOS',path:'03 - FUNCIONÁRIOS (RH)'}
+};
+
+let registros = [];
+let imgOrig = null;
+let imgPixOrig = null;
+let filtroAtivo = 'original';
+let pastaAtiva = '01';
+let contador = 1;
+
+// Init
+document.getElementById('i-data').valueAsDate = new Date();
+const hoje = new Date();
+document.getElementById('p-de').valueAsDate = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
+document.getElementById('p-ate').valueAsDate = hoje;
 
 // Máscara valor
-['i-preco','i-custo'].forEach(id => {
-  document.getElementById(id).addEventListener('input', function() {
-    let v = this.value.replace(/\D/g,'');
-    if (!v) { this.value=''; return; }
-    this.value = (parseInt(v)/100).toFixed(2).replace('.',',');
-  });
+document.getElementById('i-valor').addEventListener('input', function() {
+  let v = this.value.replace(/\D/g,'');
+  if (!v) { this.value=''; return; }
+  this.value = (parseInt(v)/100).toFixed(2).replace('.',',');
 });
 
-function trocarTab(id, btn) {
+// Carregar ao iniciar
+setTimeout(carregarRegistros, 1000);
+
+function trocarTab(id) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  btn.classList.add('active');
+  event.currentTarget.classList.add('active');
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
   document.getElementById('panel-'+id).classList.add('active');
-  if (id === 'lista') renderLista();
+  if (id === 'lista' || id === 'exportar') carregarRegistros();
 }
 
-function carregarFoto(input) {
-  const file = input.files[0]; if (!file) return;
+function selecionarPasta(btn) {
+  document.querySelectorAll('.pasta-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  pastaAtiva = btn.dataset.pasta;
+  document.getElementById('subpastaLabel').textContent = '📂 ' + PASTAS[pastaAtiva].label;
+}
+
+function togglePix() {
+  document.getElementById('pixWrap').style.display = document.getElementById('i-pgto').value === 'PIX' ? 'block' : 'none';
+}
+
+// Upload foto recibo
+document.getElementById('i-foto').addEventListener('change', function() {
+  const file = this.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const img = new Image();
+    img.onload = function() {
+      imgOrig = img;
+      // Mostrar canvas e esconder label
+      const cvsWrap = document.getElementById('cvsWrap');
+      const ulbl = document.getElementById('ulbl');
+      cvsWrap.style.display = 'block';
+      ulbl.style.display = 'none';
+      filtroAtivo = 'original';
+      // Ativar botão original
+      document.querySelectorAll('.sbtn').forEach(function(b) { b.classList.remove('active'); });
+      document.querySelectorAll('.sbtn')[0].classList.add('active');
+      // Desenhar imagem no canvas
+      const cvs = document.getElementById('cvs');
+      const ctx = cvs.getContext('2d');
+      const maxW = 1600;
+      const w = img.naturalWidth || img.width;
+      const h = img.naturalHeight || img.height;
+      const sc = Math.min(1, maxW/w);
+      cvs.width = Math.round(w*sc);
+      cvs.height = Math.round(h*sc);
+      ctx.drawImage(img, 0, 0, cvs.width, cvs.height);
+    };
+    img.onerror = function() { alert('Erro ao carregar imagem. Tente novamente.'); };
+    img.src = e.target.result;
+  };
+  reader.onerror = function() { alert('Erro ao ler arquivo.'); };
+  reader.readAsDataURL(file);
+});
+
+// Upload PIX
+document.getElementById('i-pix').addEventListener('change', function() {
+  const file = this.files[0]; if (!file) return;
   const reader = new FileReader();
   reader.onload = e => {
-    fotoAtual = e.target.result;
-    const prev = document.getElementById('foto-preview');
-    prev.src = e.target.result;
-    prev.style.display = 'block';
-    document.getElementById('foto-lbl').innerHTML = '<i class="ti ti-check" style="color:#276749"></i> Foto adicionada';
+    imgPixOrig = e.target.result;
+    const p = document.getElementById('pixPreview');
+    p.src = e.target.result; p.style.display = 'block';
+    document.getElementById('ulblPix').style.display = 'none';
   };
   reader.readAsDataURL(file);
-}
+});
 
-// Scanner de código de barras via câmera
-async function toggleScan() {
-  const area = document.getElementById('scanArea');
-  if (area.style.display === 'block') { pararScan(); return; }
-  try {
-    scanStream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: 'environment', width: { ideal: 1280 } }
-    });
-    document.getElementById('scanVideo').srcObject = scanStream;
-    area.style.display = 'block';
-    iniciarDeteccaoBarcode();
-  } catch(e) {
-    alert('Não foi possível acessar a câmera: ' + e.message);
+function aplicarFiltro(tipo) {
+  if (!imgOrig) return;
+  filtroAtivo = tipo;
+  document.querySelectorAll('.sbtn').forEach(b => b.classList.remove('active'));
+  const idx = ['original','scanner','contraste'].indexOf(tipo);
+  if (idx >= 0) document.querySelectorAll('.sbtn')[idx].classList.add('active');
+  const cvs = document.getElementById('cvs');
+  const ctx = cvs.getContext('2d');
+  const maxW = 1600;
+  const w = imgOrig.naturalWidth || imgOrig.width;
+  const h = imgOrig.naturalHeight || imgOrig.height;
+  const sc = Math.min(1, maxW/w);
+  cvs.width = Math.round(w*sc); cvs.height = Math.round(h*sc);
+  ctx.drawImage(imgOrig, 0, 0, cvs.width, cvs.height);
+  if (tipo === 'original') return;
+  const id = ctx.getImageData(0,0,cvs.width,cvs.height);
+  const d = id.data;
+  for (let i=0;i<d.length;i+=4) {
+    let g = 0.299*d[i]+0.587*d[i+1]+0.114*d[i+2];
+    if (tipo==='scanner'){g=Math.min(255,g*1.15-20);g=g>128?Math.min(255,g*1.3):Math.max(0,g*0.6);}
+    else{g=Math.min(255,Math.max(0,(g-128)*1.8+128));}
+    d[i]=d[i+1]=d[i+2]=g;
   }
+  ctx.putImageData(id,0,0);
 }
 
-function iniciarDeteccaoBarcode() {
-  if (!('BarcodeDetector' in window)) {
-    alert('Seu navegador não suporta leitura de código de barras automática.\nDigite o código manualmente.');
-    pararScan();
-    return;
+function getImg() {
+  if (!imgOrig) return null;
+  const t = document.createElement('canvas');
+  const maxW = 1600;
+  const w = imgOrig.naturalWidth || imgOrig.width;
+  const h = imgOrig.naturalHeight || imgOrig.height;
+  const sc = Math.min(1, maxW/w);
+  t.width = Math.round(w*sc); t.height = Math.round(h*sc);
+  const ctx = t.getContext('2d');
+  ctx.drawImage(imgOrig, 0, 0, t.width, t.height);
+  if (filtroAtivo !== 'original') {
+    const id2 = ctx.getImageData(0,0,t.width,t.height);
+    const d2 = id2.data;
+    for (let i=0;i<d2.length;i+=4) {
+      let g = 0.299*d2[i]+0.587*d2[i+1]+0.114*d2[i+2];
+      if (filtroAtivo==='scanner'){g=Math.min(255,g*1.15-20);g=g>128?Math.min(255,g*1.3):Math.max(0,g*0.6);}
+      else{g=Math.min(255,Math.max(0,(g-128)*1.8+128));}
+      d2[i]=d2[i+1]=d2[i+2]=g;
+    }
+    ctx.putImageData(id2,0,0);
   }
-  const detector = new BarcodeDetector({ formats: ['ean_13','ean_8','code_128','code_39','upc_a','upc_e'] });
-  const video = document.getElementById('scanVideo');
-  scanInterval = setInterval(async () => {
-    try {
-      const barcodes = await detector.detect(video);
-      if (barcodes.length > 0) {
-        document.getElementById('i-cod').value = barcodes[0].rawValue;
-        pararScan();
-        document.getElementById('i-nome').focus();
-      }
-    } catch(e) {}
-  }, 300);
+  return t.toDataURL('image/jpeg',0.88);
 }
 
-function pararScan() {
-  if (scanInterval) { clearInterval(scanInterval); scanInterval = null; }
-  if (scanStream) { scanStream.getTracks().forEach(t => t.stop()); scanStream = null; }
-  document.getElementById('scanArea').style.display = 'none';
-  document.getElementById('scanVideo').srcObject = null;
+async function uploadCloud(dataUrl, nome) {
+  if (!dataUrl) return null;
+  const blob = await (await fetch(dataUrl)).blob();
+  const fd = new FormData();
+  fd.append('file', blob, nome+'.jpg');
+  fd.append('upload_preset', PRESET);
+  fd.append('folder', 'comprovantes');
+  const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD}/image/upload`, {method:'POST',body:fd});
+  if (!res.ok) throw new Error('Erro no upload da imagem');
+  return (await res.json()).secure_url;
+}
+
+function nomeArq(r) {
+  const n = String(r.num||1).padStart(2,'0');
+  return `${n} - ${(r.forn||'').trim()}`;
 }
 
 function parseValor(v) {
-  return parseFloat(String(v||'0').replace(/\./g,'').replace(',','.')) || 0;
+  return parseFloat(String(v||'').replace(/\./g,'').replace(',','.')) || 0;
 }
 
-function salvar() {
-  const nome = document.getElementById('i-nome').value.trim();
-  const cod = document.getElementById('i-cod').value.trim();
-  const preco = parseValor(document.getElementById('i-preco').value);
-  const qtd = parseInt(document.getElementById('i-qtd').value) || 0;
+async function salvar() {
+  const data = document.getElementById('i-data').value;
+  const valor = parseValor(document.getElementById('i-valor').value);
+  const forn = document.getElementById('i-forn').value.trim();
+  const pgto = document.getElementById('i-pgto').value;
+  if (!data||!forn||valor<=0||!pgto) { alert('Preencha: data, fornecedor, valor e pagamento.'); return; }
 
-  if (!nome) { mostrarErro('Preencha o nome do produto.'); return; }
-  if (!cod) { mostrarErro('Preencha o código de barras.'); return; }
-  if (preco <= 0) { mostrarErro('Preencha o preço de venda.'); return; }
-  if (qtd <= 0) { mostrarErro('Preencha a quantidade de entrada.'); return; }
+  const btn = document.getElementById('btnSalvar');
+  btn.disabled = true;
+  document.getElementById('ok').style.display = 'none';
+  document.getElementById('err').style.display = 'none';
 
-  const produto = {
-    id: Date.now(),
-    nome,
-    codigo: cod,
-    preco,
-    custo: parseValor(document.getElementById('i-custo').value),
-    quantidade: qtd,
-    categoria: document.getElementById('i-cat').value,
-    fornecedor: document.getElementById('i-forn').value.trim(),
-    estoqueMin: parseInt(document.getElementById('i-min').value) || 0,
-    estoqueMax: parseInt(document.getElementById('i-max').value) || 0,
-    foto: fotoAtual,
-    data: new Date().toISOString()
-  };
+  try {
+    let tent = 0;
+    while (!window._addDoc && tent < 10) { await new Promise(r=>setTimeout(r,300)); tent++; }
+    if (!window._addDoc) throw new Error('Firebase não conectou.');
 
-  produtos.push(produto);
-  localStorage.setItem('estoque_produtos', JSON.stringify(produtos));
-
-  document.getElementById('ok').style.display = 'flex';
-  setTimeout(() => document.getElementById('ok').style.display = 'none', 3000);
-  limpar();
-}
-
-function mostrarErro(msg) {
-  document.getElementById('errMsg').textContent = msg;
-  document.getElementById('err').style.display = 'flex';
-  setTimeout(() => document.getElementById('err').style.display = 'none', 3000);
+    const num = contador++;
+    const nome = nomeArq({data,num,forn});
+    btn.innerHTML = '<div class="spinner"></div> Enviando recibo...';
+    const fotoUrl = await uploadCloud(getImg(), nome);
+    let pixUrl = null;
+    if (imgPixOrig && pgto==='PIX') {
+      btn.innerHTML = '<div class="spinner"></div> Enviando PIX...';
+      pixUrl = await uploadCloud(imgPixOrig, nome+' - C01');
+    }
+    btn.innerHTML = '<div class="spinner"></div> Salvando...';
+    await window._addDoc(window._col, {
+      num, data, valor, forn,
+      cat: document.getElementById('i-cat').value,
+      pgto, obs: document.getElementById('i-obs').value.trim(),
+      foto: fotoUrl, fotoPix: pixUrl, xmlUrl: '',
+      pasta: pastaAtiva, origem: 'manual',
+      criadoEm: new Date().toISOString()
+    });
+    document.getElementById('ok').style.display = 'flex';
+    limpar();
+  } catch(e) {
+    document.getElementById('errMsg').textContent = 'Erro: '+e.message;
+    document.getElementById('err').style.display = 'flex';
+  }
+  btn.disabled = false;
+  btn.innerHTML = '<i class="ti ti-device-floppy"></i>Salvar na nuvem';
 }
 
 function limpar() {
-  ['i-nome','i-cod','i-forn'].forEach(id => document.getElementById(id).value = '');
-  ['i-preco','i-custo'].forEach(id => document.getElementById(id).value = '');
-  ['i-qtd','i-min','i-max'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('i-cat').value = '';
-  document.getElementById('i-foto').value = '';
-  fotoAtual = null;
-  document.getElementById('foto-preview').style.display = 'none';
-  document.getElementById('foto-lbl').innerHTML = '<i class="ti ti-camera-plus"></i>Tirar foto do produto';
-  pararScan();
+  ['i-forn','i-obs'].forEach(id => document.getElementById(id).value='');
+  document.getElementById('i-valor').value='';
+  document.getElementById('i-cat').value='';
+  document.getElementById('i-pgto').value='';
+  document.getElementById('i-foto').value='';
+  document.getElementById('i-pix').value='';
+  document.getElementById('i-data').valueAsDate = new Date();
+  imgOrig=null; imgPixOrig=null;
+  document.getElementById('cvsWrap').style.display='none';
+  document.getElementById('ulbl').style.display='block';
+  document.getElementById('pixWrap').style.display='none';
+  document.getElementById('pixPreview').style.display='none';
+  document.getElementById('ulblPix').style.display='block';
+  const m = document.querySelector('.ia-sugestao');
+  if (m) m.remove();
+}
+
+async function carregarRegistros() {
+  const ll = document.getElementById('loadingLista');
+  if (ll) ll.style.display = 'flex';
+  try {
+    let tent = 0;
+    while (!window._getDocs && tent < 10) { await new Promise(r=>setTimeout(r,300)); tent++; }
+    if (!window._getDocs) return;
+    const snap = await window._getDocs(window._query(window._col, window._orderBy('criadoEm','desc')));
+    registros = snap.docs.map(d => ({id:d.id,...d.data()}));
+    // Inicializar filtro ano
+    const anos = [...new Set(registros.filter(r=>r.data).map(r=>r.data.slice(0,4)))].sort().reverse();
+    const sel = document.getElementById('filtroAno');
+    if (sel) {
+      const cur = sel.value || new Date().getFullYear().toString();
+      sel.innerHTML = anos.map(a=>`<option value="${a}" ${a===cur?'selected':''}>${a}</option>`).join('');
+    }
+    // Selecionar mês atual por padrão
+    const selMes = document.getElementById('filtroMes');
+    if (selMes && !selMes.value) {
+      selMes.value = String(new Date().getMonth()+1).padStart(2,'0');
+    }
+    renderLista();
+  } catch(e) { console.error(e); }
+  if (ll) ll.style.display = 'none';
+}
+
+function getFiltrados() {
+  const ano = (document.getElementById('filtroAno')||{}).value || '';
+  const mes = (document.getElementById('filtroMes')||{}).value || '';
+  return registros.filter(r => {
+    if (!r.data) return !ano && !mes;
+    if (ano && !r.data.startsWith(ano)) return false;
+    if (mes && r.data.slice(5,7) !== mes) return false;
+    return true;
+  });
 }
 
 function renderLista() {
   const lista = document.getElementById('lista');
-  const sr = document.getElementById('statsRow');
-  if (!produtos.length) {
-    lista.innerHTML = '<div class="empty"><i class="ti ti-package"></i>Nenhum produto ainda.</div>';
-    sr.style.display = 'none'; return;
-  }
-  sr.style.display = 'grid';
-  const totalQtd = produtos.reduce((s,p)=>s+(p.quantidade||0),0);
-  const totalVal = produtos.reduce((s,p)=>s+(p.custo||0)*(p.quantidade||0),0);
-  document.getElementById('s-qtd').textContent = produtos.length;
-  document.getElementById('s-tot').textContent = totalQtd + ' un';
-  document.getElementById('s-val').textContent = 'R$'+totalVal.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+  const rw = document.getElementById('resumoWrap');
+  const sh = document.getElementById('secHd');
+  if (!lista) return;
 
-  lista.innerHTML = [...produtos].reverse().map(p => {
-    const thumb = p.foto
-      ? `<img src="${p.foto}" class="reg-thumb" alt="${p.nome}">`
-      : `<div class="reg-ph"><i class="ti ti-package"></i></div>`;
-    const preco = 'R$'+p.preco.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
-    const custo = p.custo?'Custo: R$'+p.custo.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}):'';
-    const dt = new Date(p.data).toLocaleDateString('pt-BR');
-    return `<div class="reg-item">${thumb}
-      <div class="reg-info">
-        <div class="reg-nome">${p.nome}</div>
-        <div class="reg-meta">${p.codigo} · ${p.categoria||''} · ${dt}</div>
-        <div class="reg-meta">${p.fornecedor||''}</div>
-      </div>
-      <div>
-        <div class="reg-val">${preco}<span>${custo}</span><span>${p.quantidade} un</span></div>
-      </div>
-      <button class="del-btn" onclick="deletar(${p.id})"><i class="ti ti-trash"></i></button>
-    </div>`;
+  if (!registros.length) {
+    lista.innerHTML = '<div class="empty"><i class="ti ti-clipboard-list"></i>Nenhum registro ainda.</div>';
+    if(rw)rw.style.display='none'; if(sh)sh.style.display='none'; return;
+  }
+
+  const filtrados = getFiltrados();
+  if (!filtrados.length) {
+    lista.innerHTML = '<div class="empty"><i class="ti ti-calendar-off"></i>Sem registros neste período.</div>';
+    if(rw)rw.style.display='none'; if(sh)sh.style.display='none'; return;
+  }
+
+  if(rw)rw.style.display='block'; if(sh)sh.style.display='flex';
+  const total = filtrados.reduce((s,r)=>s+(r.valor||0),0);
+  const sem = filtrados.filter(r=>!r.foto&&r.origem!=='email').length;
+  document.getElementById('r-qtd').textContent = filtrados.length;
+  document.getElementById('r-tot').textContent = 'R$'+total.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+  document.getElementById('r-sem').textContent = sem;
+  document.getElementById('badgeN').textContent = filtrados.length+' itens';
+
+  const ordenados = [...filtrados].sort((a,b)=>(b.data||'').localeCompare(a.data||''));
+  lista.innerHTML = ordenados.map(r => {
+    const dt = r.data ? new Date(r.data+'T12:00:00').toLocaleDateString('pt-BR') : '';
+    const vf = 'R$'+((r.valor||0)).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+    const pasta = PASTAS[r.pasta||'01'];
+    const pixBadge = r.fotoPix ? '<span class="pix-badge">PIX</span>' : '';
+    const emailBadge = r.origem==='email' ? '<span class="email-badge">📧 Email</span>' : '';
+    const thumb = r.foto
+      ? `<img src="${r.foto}" class="reg-thumb" onclick="abrirModal('${r.id}')" alt="comprovante" onerror="this.style.display='none'">`
+      : `<div class="reg-ph"><i class="ti ti-${r.origem==='email'?'mail':'photo-off'}"></i></div>`;
+    return `<div class="reg-item">${thumb}<div class="reg-info">
+      <div class="reg-nome">${nomeArq(r)}${pixBadge}${emailBadge}</div>
+      <div class="reg-meta">${dt}${r.cat?' · '+r.cat:''}${r.obs?' · '+r.obs:''}</div>
+      <div class="reg-pasta">📂 ${pasta?pasta.label:'FISCAL'}</div>
+    </div><div>
+      <div class="reg-val">${vf}</div>
+      <div class="reg-pgto">${r.pgto||''}</div>
+    </div>
+    <button class="del-btn" onclick="deletar('${r.id}')"><i class="ti ti-trash"></i></button></div>`;
   }).join('');
 }
 
-function deletar(id) {
-  if (!confirm('Excluir este produto?')) return;
-  produtos = produtos.filter(p => p.id !== id);
-  localStorage.setItem('estoque_produtos', JSON.stringify(produtos));
+window.abrirModal = function(id) {
+  const r = registros.find(x=>x.id===id);
+  if (!r) return;
+  const mi = document.getElementById('modalImg');
+  mi.src = r.foto||''; mi.style.display = r.foto?'block':'none';
+  const mp = document.getElementById('modalPix');
+  if (r.fotoPix) { document.getElementById('modalPixImg').src=r.fotoPix; mp.style.display='block'; }
+  else mp.style.display='none';
+  document.getElementById('modal').style.display='flex';
+};
+window.fecharModal = function() { document.getElementById('modal').style.display='none'; };
+window.deletar = async function(id) {
+  if (!confirm('Excluir este registro?')) return;
+  await window._deleteDoc(window._doc(window._db,'compras',id));
+  registros = registros.filter(r=>r.id!==id);
   renderLista();
+};
+
+// IA
+async function lerComIA() {
+  const img = getImg();
+  if (!img) { alert('Adicione uma foto primeiro.'); return; }
+  const btn = document.getElementById('btnIA');
+  const status = document.getElementById('iaStatus');
+  btn.disabled = true; status.style.display = 'flex';
+  document.getElementById('iaStatusTxt').textContent = 'Analisando comprovante...';
+  try {
+    const res = await fetch(WORKER, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({base64: img.split(',')[1], mimeType:'image/jpeg'})
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    const jsonMatch = (data.text||'').match(/\{[\s\S]*?\}/);
+    if (!jsonMatch) throw new Error('IA não retornou dados válidos');
+    const r = JSON.parse(jsonMatch[0]);
+    if (r.data) document.getElementById('i-data').value = r.data;
+    if (r.fornecedor) document.getElementById('i-forn').value = r.fornecedor.toUpperCase();
+    if (r.valor) document.getElementById('i-valor').value = parseFloat(r.valor).toFixed(2).replace('.',',');
+    if (r.categoria) {
+      const sel = document.getElementById('i-cat');
+      for (let o of sel.options) if (o.value===r.categoria) { sel.value=r.categoria; break; }
+    }
+    status.style.display = 'none';
+    const msg = document.createElement('div');
+    msg.className = 'ia-sugestao';
+    msg.innerHTML = `<strong>✨ IA preencheu automaticamente</strong><br>
+      ${r.fornecedor?'✅ Fornecedor: '+r.fornecedor+'<br>':''}
+      ${r.valor?'✅ Valor: R$ '+r.valor+'<br>':''}
+      ${r.data?'✅ Data: '+new Date(r.data+'T12:00:00').toLocaleDateString('pt-BR')+'<br>':''}
+      ${r.categoria?'✅ Categoria: '+r.categoria+'<br>':''}
+      <span style="color:#888;font-size:11px">Confira e ajuste se necessário</span>`;
+    const prev = document.querySelector('.ia-sugestao');
+    if (prev) prev.remove();
+    document.getElementById('cvsWrap').appendChild(msg);
+  } catch(e) {
+    status.style.display='none';
+    alert('Erro: '+e.message);
+  }
+  btn.disabled = false;
 }
 
-function exportarNex() {
-  if (!produtos.length) { alert('Nenhum produto para exportar.'); return; }
-
-  // Formato EXATO do Nex
-  const rows = [['Ação','Imagem','Nome','Código','Preço','Estoque Atual','Pedidos','Disponível','Código Extra','Categoria','Sub Categoria','Unidade','Fornecedor Principal','Código Ref.','Marca','Estoque Min.','Estoque Max.','Abaixo Min.','Repor','Prêmio ?','Pontos Nec.','Tributação','NCM','CEST','Peso Líq.','Peso Bruto','Incluído em','Alterado em','Alterado por']];
-
-  produtos.forEach(p => {
-    const preco = 'R$ ' + p.preco.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}) + ' ';
-    const dt = new Date(p.data).toLocaleString('pt-BR');
-    rows.push([
-      '',          // Ação
-      '',          // Imagem
-      p.nome,      // Nome
-      p.codigo,    // Código
-      preco,       // Preço
-      p.quantidade,// Estoque Atual
-      0,           // Pedidos
-      p.quantidade,// Disponível
-      '',          // Código Extra
-      p.categoria, // Categoria
-      '',          // Sub Categoria
-      'Peça',      // Unidade
-      p.fornecedor,// Fornecedor Principal
-      p.codigo,    // Código Ref.
-      '',          // Marca
-      p.estoqueMin,// Estoque Min.
-      p.estoqueMax,// Estoque Max.
-      'Não',       // Abaixo Min.
-      '',          // Repor
-      'Não',       // Prêmio?
-      0,           // Pontos Nec.
-      '',          // Tributação
-      '',          // NCM
-      '',          // CEST
-      '',          // Peso Líq.
-      '',          // Peso Bruto
-      dt,          // Incluído em
-      '',          // Alterado em
-      ''           // Alterado por
-    ]);
+// EXPORTAR
+async function exportExcel() {
+  await carregarRegistros();
+  const dados = getPeriodo();
+  if (!dados.length) { alert('Nenhum registro no período.'); return; }
+  dados.sort((a,b)=>(a.data||'').localeCompare(b.data||''));
+  const rows = [['Arquivo','Data','Fornecedor','Categoria','Valor (R$)','Pagamento','Observação','Pasta','Link DANFE','Link XML','Link PIX']];
+  dados.forEach(r => {
+    const dt = r.data?new Date(r.data+'T12:00:00').toLocaleDateString('pt-BR'):'';
+    rows.push([nomeArq(r),dt,r.forn,r.cat,r.valor,r.pgto,r.obs,PASTAS[r.pasta||'01']?.label,r.foto||'',r.xmlUrl||'',r.fotoPix||'']);
   });
-
   const ws = XLSX.utils.aoa_to_sheet(rows);
-  ws['!cols'] = [
-    {wch:8},{wch:8},{wch:40},{wch:15},{wch:12},{wch:14},{wch:8},{wch:12},
-    {wch:12},{wch:15},{wch:12},{wch:8},{wch:25},{wch:12},{wch:12},{wch:12},
-    {wch:12},{wch:12},{wch:8},{wch:8},{wch:10},{wch:20},{wch:12},{wch:8},
-    {wch:10},{wch:10},{wch:20},{wch:20},{wch:15}
-  ];
+  dados.forEach((r,i) => {
+    if(r.foto){const c=XLSX.utils.encode_cell({r:i+1,c:8});ws[c]={v:'Abrir DANFE',t:'s',l:{Target:r.foto}};}
+    if(r.xmlUrl){const c=XLSX.utils.encode_cell({r:i+1,c:9});ws[c]={v:'Abrir XML',t:'s',l:{Target:r.xmlUrl}};}
+    if(r.fotoPix){const c=XLSX.utils.encode_cell({r:i+1,c:10});ws[c]={v:'Abrir PIX',t:'s',l:{Target:r.fotoPix}};}
+  });
+  ws['!cols']=[{wch:35},{wch:12},{wch:30},{wch:20},{wch:12},{wch:12},{wch:20},{wch:30},{wch:14},{wch:14},{wch:14}];
   const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, 'Produtos');
-  const data = new Date().toLocaleDateString('pt-BR').replace(/\//g,'-');
-  XLSX.writeFile(wb, `Entrada_Estoque_${data}.xlsx`);
+  XLSX.utils.book_append_sheet(wb,ws,'Compras');
+  XLSX.writeFile(wb,`Compras_${document.getElementById('p-de').value}_${document.getElementById('p-ate').value}.xlsx`);
 }
+
+function getPeriodo() {
+  const de = document.getElementById('p-de').value;
+  const ate = document.getElementById('p-ate').value;
+  if (!de||!ate) return registros;
+  return registros.filter(r=>r.data>=de&&r.data<=ate);
+}
+
+async function gerarZIP() {
+  await carregarRegistros();
+  const dados = getPeriodo();
+  if (!dados.length) { alert('Nenhum registro no período.'); return; }
+  const pw=document.getElementById('progWrap');
+  const pf=document.getElementById('progFill');
+  const pl=document.getElementById('progLbl');
+  pw.style.display='block'; pf.style.width='0%';
+  const zip = new JSZip();
+  const de=document.getElementById('p-de').value;
+  const ate=document.getElementById('p-ate').value;
+  const d0=new Date(de+'T12:00:00');
+  const ano=d0.getFullYear(); const m=d0.getMonth();
+  const mn=String(m+1).padStart(2,'0');
+  const base=`CONTABILIDADE/${ano}/${mn} - ${MESES[m]}`;
+  Object.values(PASTAS).forEach(p=>zip.folder(`${base}/${p.path}`));
+  zip.folder(`${base}/01 - FISCAL (Vendas e Compras)/XML - Notas de Entrada`);
+  zip.folder(`${base}/01 - FISCAL (Vendas e Compras)/XML - Vendas`);
+  zip.folder(`${base}/02 - BANCO (Extratos e Boletos)/Extrato PDF e OFX`);
+  zip.folder(`${base}/03 - FUNCIONÁRIOS (RH)/Atestados`);
+  zip.folder(`${base}/03 - FUNCIONÁRIOS (RH)/Folhas de Ponto`);
+  zip.folder(`${base}/03 - FUNCIONÁRIOS (RH)/Holerites Escaneados`);
+  pl.textContent='Baixando imagens...'; pf.style.width='5%';
+  const ordenados = [...dados].sort((a,b)=>(a.data||'').localeCompare(b.data||''));
+  for (let i=0;i<ordenados.length;i++) {
+    const r=ordenados[i];
+    const caminho=`${base}/${PASTAS[r.pasta||'01'].path}`;
+    pl.textContent=`Baixando ${i+1}/${ordenados.length}: ${r.forn||''}...`;
+    if (r.foto&&r.foto.startsWith('http')) {
+      try{const b=await(await fetch(r.foto)).blob();zip.file(`${caminho}/${nomeArq(r)}.${b.type.includes('png')?'png':'jpg'}`,b);}catch(e){}
+    }
+    if (r.fotoPix&&r.fotoPix.startsWith('http')) {
+      try{const b=await(await fetch(r.fotoPix)).blob();zip.file(`${caminho}/${nomeArq(r)} - C01.${b.type.includes('png')?'png':'jpg'}`,b);}catch(e){}
+    }
+    pf.style.width=Math.round(5+(i+1)/ordenados.length*60)+'%';
+    await new Promise(r=>setTimeout(r,30));
+  }
+  pl.textContent='Gerando Excel...'; pf.style.width='68%';
+  await new Promise(r=>setTimeout(r,50));
+  const rows=[['Arquivo','Data','Fornecedor','Categoria','Valor (R$)','Pagamento','Observação','Pasta','Link DANFE','Link XML','Link PIX']];
+  ordenados.forEach(r=>{
+    const dt=r.data?new Date(r.data+'T12:00:00').toLocaleDateString('pt-BR'):'';
+    rows.push([nomeArq(r),dt,r.forn,r.cat,r.valor,r.pgto,r.obs,PASTAS[r.pasta||'01']?.label,r.foto||'',r.xmlUrl||'',r.fotoPix||'']);
+  });
+  const ws=XLSX.utils.aoa_to_sheet(rows);
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,'Compras');
+  zip.file(`${base}/Resumo_${de}_${ate}.xlsx`,XLSX.write(wb,{bookType:'xlsx',type:'array'}));
+  pl.textContent='Compactando...'; pf.style.width='80%';
+  await new Promise(r=>setTimeout(r,50));
+  const blob=await zip.generateAsync({type:'blob',compression:'DEFLATE',compressionOptions:{level:6}},m=>{pf.style.width=Math.round(80+m.percent*0.18)+'%';});
+  pf.style.width='100%'; pl.textContent='Pronto!';
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download=`CONTABILIDADE_${mn}-${MESES[m]}_${ano}.zip`;
+  a.click(); URL.revokeObjectURL(url);
+  setTimeout(()=>{pw.style.display='none';pf.style.width='0%';},3000);
+}
+
+// Expor globais
+window.trocarTab=trocarTab;
+window.selecionarPasta=selecionarPasta;
+window.togglePix=togglePix;
+window.aplicarFiltro=aplicarFiltro;
+window.lerComIA=lerComIA;
+window.salvar=salvar;
+window.limpar=limpar;
+window.exportExcel=exportExcel;
+window.gerarZIP=gerarZIP;
+window.renderLista=renderLista;
 </script>
 </body>
 </html>
