@@ -424,6 +424,77 @@ function exportarNex() {
   const data = new Date().toLocaleDateString('pt-BR').replace(/\//g,'-');
   XLSX.writeFile(wb, `Entrada_Estoque_${data}.xlsx`);
 }
+
+// Leitura de código de barras por foto com IA
+const WORKER_URL = 'https://barcode-estoque.plantaomercado24h.workers.dev';
+
+function lerCodigoComIA() {
+  document.getElementById('i-foto-cod').click();
+}
+
+async function processarFotoCodigo(input) {
+  const file = input.files[0]; if (!file) return;
+  const status = document.getElementById('iaStatus');
+  status.style.display = 'flex';
+
+  const reader = new FileReader();
+  reader.onload = async function(e) {
+    const base64 = e.target.result.split(',')[1];
+    try {
+      const response = await fetch(WORKER_URL, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ base64, mimeType: 'image/jpeg' })
+      });
+      const data = await response.json();
+      if (data.error) throw new Error(data.error);
+
+      // Tentar parsear JSON retornado
+      let texto = data.text || '';
+      try {
+        const jsonMatch = texto.match(/\{[\s\S]*?\}/);
+        if (jsonMatch) {
+          const resultado = JSON.parse(jsonMatch[0]);
+          if (resultado.codigo) {
+            document.getElementById('i-cod').value = resultado.codigo.replace(/\D/g,'');
+          }
+          if (resultado.nome && !document.getElementById('i-nome').value) {
+            document.getElementById('i-nome').value = resultado.nome.toUpperCase();
+          }
+          mostrarSucesso('Código lido: ' + resultado.codigo);
+        } else {
+          // Tentar extrair só os números
+          const nums = texto.replace(/\D/g,'');
+          if (nums.length >= 4) {
+            document.getElementById('i-cod').value = nums;
+            mostrarSucesso('Código lido: ' + nums);
+          } else {
+            mostrarErro('Não encontrei o código. Digite manualmente.');
+          }
+        }
+      } catch(e) {
+        const nums = texto.replace(/\D/g,'');
+        if (nums.length >= 4) {
+          document.getElementById('i-cod').value = nums;
+          mostrarSucesso('Código lido: ' + nums);
+        } else {
+          mostrarErro('Não encontrei o código. Digite manualmente.');
+        }
+      }
+    } catch(e) {
+      mostrarErro('Erro na IA: ' + e.message);
+    }
+    status.style.display = 'none';
+    input.value = '';
+  };
+  reader.readAsDataURL(file);
+}
+
+function mostrarSucesso(msg) {
+  document.getElementById('ok').innerHTML = '<i class="ti ti-check"></i> ' + msg;
+  document.getElementById('ok').style.display = 'flex';
+  setTimeout(() => document.getElementById('ok').style.display = 'none', 3000);
+}
 </script>
 </body>
 </html>
